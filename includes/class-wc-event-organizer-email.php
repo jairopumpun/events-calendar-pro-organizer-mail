@@ -56,8 +56,11 @@ class WC_Event_Organizer_Email extends WC_Email {
 	 * @param int $order_id
 	 */
 	public function trigger( $order_id ) {
+		
+		
 		// Exit if no order id present
 		if ( ! $order_id ) return;
+
 
 		// Exit if his email is not enabled
 		if ( ! $this->is_enabled() )
@@ -73,10 +76,11 @@ class WC_Event_Organizer_Email extends WC_Email {
 		$organizersToNotify = array();
 		$ticketLog = array();
 
-		// Make sure Tribe Events Plugin is activated
-		if ( class_exists( 'Tribe__Events__Tickets__Woo__Main' ) ) {
-			$tribe_event = Tribe__Events__Tickets__Woo__Main::get_instance();
 
+		// Make sure Tribe Events Plugin is activated
+		if ( is_plugin_active('event-tickets/event-tickets.php') || is_plugin_active('event-tickets-plus/event-tickets-plus.php') ) {
+			//$tribe_event = Tribe__Events__Tickets__Woo__Main::get_instance();
+			
 			// Loop over order items / tickets
 			if ( !empty( $orderItems ) ) {
 				foreach( $orderItems as $orderID => $orderMeta ) {
@@ -101,6 +105,8 @@ class WC_Event_Organizer_Email extends WC_Email {
 					// Get Event Meta Array and all Organizers added for this event
 					$eventMeta = tribe_get_event_meta( $event_id );
 					$eventOrganizerIDs = $eventMeta['_EventOrganizerID'];
+
+					error_log('there are ' . count($eventOrganizerIDs) . ' orderganizers for this event');
 
 					// Loop over Organizers for this event
 					foreach( $eventOrganizerIDs as $event_organizer_id ) {
@@ -142,7 +148,7 @@ class WC_Event_Organizer_Email extends WC_Email {
 
 					// Establish who to mail
 					$this->find_validate_recipient( $organizer_email, $this->get_option( 'recipient' ) );
-					
+										
 					$this->send( $organizer_email, $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );	
 				}
 			}
